@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { RecaptchaVerifier } from 'firebase/auth';
+import { RecaptchaVerifier, createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseAuth } from '@/components/firebase/firebaseAuth';
 import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal';
@@ -9,7 +9,6 @@ import { useAppDispatch } from '@/components/redux/store';
 import { showToast } from '@/components/redux/toast/toastSlice';
 import Input from '@/components/ui/Input';
 import LoadingButton from '@/components/ui/LoadingButton';
-import Logout from './Logout';
 import { useAuth } from '../useAuth';
 import { LoadingStateTypes } from '../redux/types';
 import {
@@ -19,7 +18,7 @@ import {
     verifyPhoneNumber,
 } from '../redux/auth/verifyPhoneNumber';
 
-const PhoneVerification = () => {
+const PhoneSignUp = () => {
     const dispatch = useAppDispatch();
     const auth = useAuth();
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -36,6 +35,13 @@ const PhoneVerification = () => {
 
     // Sending OTP and storing id to verify it later
     const handleSendVerification = async () => {
+        const tempEmail = `holdermail-${Math.floor(Math.random() * 1_000_000)}@gmail.com`;
+        const tempPassword = Math.floor(Math.random() * 1_000_000);
+        // Create a new user with temp email and password random password
+        // This is a workaround to create a new user with phone number
+
+        await createUserWithEmailAndPassword(firebaseAuth, tempEmail, String(tempPassword));
+
         if (auth.type !== LoadingStateTypes.LOADED) return;
 
         dispatch(
@@ -102,20 +108,9 @@ const PhoneVerification = () => {
     }, []);
 
     return (
-        <div className="flex items-center justify-center min-h-full px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-center">
             <div className="w-full max-w-md space-y-8">
-                <div>
-                    <img
-                        className="w-auto h-12 mx-auto"
-                        src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-                        alt="Workflow"
-                    />
-                    <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
-                        Sign in to your account
-                    </h2>
-                </div>
-
-                <div className="max-w-xl w-full rounded overflow-hidden shadow-lg py-2 px-4">
+                <div className="max-w-xl w-full rounded overflow-hidden py-2 px-4">
                     <div className="px-4 flex p-4 pb-10 gap-4 flex-col">
                         <Input
                             value={phoneNumber}
@@ -123,6 +118,7 @@ const PhoneVerification = () => {
                             placeholder="phone number"
                             type="text"
                         />
+                        <div id="recaptcha-container" className="mx-auto w-fit" />
                         <LoadingButton
                             onClick={handleSendVerification}
                             loading={sendVerificationLoading}
@@ -131,11 +127,6 @@ const PhoneVerification = () => {
                             Send OTP
                         </LoadingButton>
                     </div>
-                    <div id="recaptcha-container" />
-                    <div className="flex w-full flex-col">
-                        <Logout />
-                    </div>
-
                     <Modal show={show} setShow={setShow}>
                         <div className="max-w-xl w-full bg-white py-6 rounded-lg">
                             <h2 className="text-lg font-semibold text-center mb-10">
@@ -166,4 +157,4 @@ const PhoneVerification = () => {
     );
 };
 
-export default PhoneVerification;
+export default PhoneSignUp;

@@ -17,6 +17,8 @@ export function Home() {
 
     useEffect(() => {
         dispatch(fetchHomePageData());
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
