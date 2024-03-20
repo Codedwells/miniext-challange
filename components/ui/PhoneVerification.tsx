@@ -115,7 +115,7 @@ const PhoneVerification = () => {
                     </h2>
                 </div>
 
-                <div className="max-w-xl w-full rounded overflow-hidden shadow-lg py-2 px-4">
+                <div className="max-w-xl w-full rounded overflow-hidden shadow-lg pb-10 py-2 px-4">
                     <div className="px-4 flex p-4 pb-10 gap-4 flex-col">
                         <Input
                             value={phoneNumber}
@@ -123,6 +123,7 @@ const PhoneVerification = () => {
                             placeholder="phone number"
                             type="text"
                         />
+                        <div id="recaptcha-container" />
                         <LoadingButton
                             onClick={handleSendVerification}
                             loading={sendVerificationLoading}
@@ -131,8 +132,7 @@ const PhoneVerification = () => {
                             Send OTP
                         </LoadingButton>
                     </div>
-                    <div id="recaptcha-container" />
-                    <div className="flex w-full flex-col">
+                    <div className="flex w-[130px] mx-auto px-4 flex-col">
                         <Logout />
                     </div>
 
@@ -141,7 +141,7 @@ const PhoneVerification = () => {
                             <h2 className="text-lg font-semibold text-center mb-10">
                                 Enter Code to Verify
                             </h2>
-                            <div className="px-4 flex items-center gap-4 pb-10">
+                            <div className="px-4 flex flex-col mx-auto max-w-sm items-center gap-4 pb-10">
                                 <Input
                                     value={OTPCode}
                                     type="text"

@@ -46,10 +46,22 @@ const PhoneSignUp = () => {
                 setShow(true);
                 setVerificationId(result.verificationId);
                 setSendVerificationLoading(false);
+
+                dispatch(
+                    showToast({
+                        message: 'Verification code sent to your phone number',
+                        type: 'success',
+                    })
+                );
             })
             .catch((error) => {
                 setSendVerificationLoading(false);
-                console.log('error', error);
+                dispatch(
+                    showToast({
+                        message: error.message,
+                        type: 'error',
+                    })
+                );
             });
     };
 
@@ -60,10 +72,23 @@ const PhoneSignUp = () => {
 
         try {
             await signInWithCredential(firebaseAuth, credential);
+
+            dispatch(
+                showToast({
+                    message: 'Logged in successfully',
+                    type: 'error',
+                })
+            );
+
             setVerifyPhoneNumberLoading(false);
         } catch (error: any) {
             setVerifyPhoneNumberLoading(false);
-            console.log('error', error.message);
+            dispatch(
+                showToast({
+                    message: error.message,
+                    type: 'error',
+                })
+            );
         }
     };
 
