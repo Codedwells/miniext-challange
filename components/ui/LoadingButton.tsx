@@ -15,7 +15,7 @@ interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const LoadingButton = (props: LoadingButtonProps) => {
     return (
         <button
-            className="transition-colors bg-violet-600 text-white font-medium px-4 py-2 rounded-md hover:bg-violet-700 disabled:bg-violet-400"
+            className="transition-colors w-full bg-violet-600 text-white font-medium px-4 py-2 rounded-md hover:bg-violet-700 disabled:bg-violet-400"
             disabled={props.loading || props.disabled}
             {...props}
         >

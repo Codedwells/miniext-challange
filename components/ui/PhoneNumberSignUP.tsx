@@ -14,19 +14,14 @@ import { useAppDispatch } from '@/components/redux/store';
 import { showToast } from '@/components/redux/toast/toastSlice';
 import Input from '@/components/ui/Input';
 import LoadingButton from '@/components/ui/LoadingButton';
-import {
-    useSendVerificationCodeLoading,
-    useVerifyPhoneNumberLoading,
-} from '../redux/auth/verifyPhoneNumber';
 
 const PhoneSignUp = () => {
     const dispatch = useAppDispatch();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [OTPCode, setOTPCode] = useState('');
     const [show, setShow] = useState(false);
-
-    const sendVerificationLoading = useSendVerificationCodeLoading();
-    const verifyPhoneNumberLoading = useVerifyPhoneNumberLoading();
+    const [sendVerificationLoading, setSendVerificationLoading] = useState(false);
+    const [verifyPhoneNumberLoading, setVerifyPhoneNumberLoading] = useState(false);
 
     const [recaptcha, setRecaptcha] = useState<RecaptchaVerifier | null>(null);
     const [recaptchaResolved, setRecaptchaResolved] = useState(false);
@@ -34,19 +29,6 @@ const PhoneSignUp = () => {
 
     // Sending OTP and storing id to verify it later
     const handleSendVerification = async () => {
-        signInWithPhoneNumber(firebaseAuth, phoneNumber, recaptcha as ApplicationVerifier)
-            .then((result) => {
-                console.log('result', result);
-                setVerificationId(result.verificationId);
-                setShow(true);
-            })
-            .catch((error) => {
-                console.log('error', error);
-            });
-    };
-
-    // Validating the filled OTP by user
-    const ValidateOtp = async () => {
         if (recaptchaResolved === false) {
             dispatch(
                 showToast({
@@ -57,12 +39,30 @@ const PhoneSignUp = () => {
             return;
         }
 
+        setSendVerificationLoading(true);
+
+        signInWithPhoneNumber(firebaseAuth, phoneNumber, recaptcha as ApplicationVerifier)
+            .then((result) => {
+                setShow(true);
+                setVerificationId(result.verificationId);
+                setSendVerificationLoading(false);
+            })
+            .catch((error) => {
+                setSendVerificationLoading(false);
+                console.log('error', error);
+            });
+    };
+
+    // Validating the filled OTP by user
+    const ValidateOtp = async () => {
+        setVerifyPhoneNumberLoading(true);
         const credential = PhoneAuthProvider.credential(verificationId, OTPCode);
 
         try {
-            const result = await signInWithCredential(firebaseAuth, credential);
-            console.log('result', result);
+            await signInWithCredential(firebaseAuth, credential);
+            setVerifyPhoneNumberLoading(false);
         } catch (error: any) {
+            setVerifyPhoneNumberLoading(false);
             console.log('error', error.message);
         }
     };
@@ -118,7 +118,7 @@ const PhoneSignUp = () => {
                             <h2 className="text-lg font-semibold text-center mb-10">
                                 Enter Code to Verify
                             </h2>
-                            <div className="px-4 flex items-center gap-4 pb-10">
+                            <div className="px-4 max-w-sm mx-auto flex flex-col items-center gap-4 pb-10">
                                 <Input
                                     value={OTPCode}
                                     type="text"
