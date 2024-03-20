@@ -1,26 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
-import { RecaptchaVerifier, createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+    RecaptchaVerifier,
+    PhoneAuthProvider,
+    signInWithCredential,
+    signInWithPhoneNumber,
+    ApplicationVerifier,
+} from 'firebase/auth';
 import { firebaseAuth } from '@/components/firebase/firebaseAuth';
 import { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal';
-import { useRouter } from 'next/navigation';
 import ToastBox from '@/components/ui/ToastBox';
 import { useAppDispatch } from '@/components/redux/store';
 import { showToast } from '@/components/redux/toast/toastSlice';
 import Input from '@/components/ui/Input';
 import LoadingButton from '@/components/ui/LoadingButton';
-import { useAuth } from '../useAuth';
-import { LoadingStateTypes } from '../redux/types';
 import {
-    sendVerificationCode,
     useSendVerificationCodeLoading,
     useVerifyPhoneNumberLoading,
-    verifyPhoneNumber,
 } from '../redux/auth/verifyPhoneNumber';
 
 const PhoneSignUp = () => {
     const dispatch = useAppDispatch();
-    const auth = useAuth();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [OTPCode, setOTPCode] = useState('');
     const [show, setShow] = useState(false);
@@ -31,54 +31,40 @@ const PhoneSignUp = () => {
     const [recaptcha, setRecaptcha] = useState<RecaptchaVerifier | null>(null);
     const [recaptchaResolved, setRecaptchaResolved] = useState(false);
     const [verificationId, setVerificationId] = useState('');
-    const router = useRouter();
 
     // Sending OTP and storing id to verify it later
     const handleSendVerification = async () => {
-        const tempEmail = `holdermail-${Math.floor(Math.random() * 1_000_000)}@gmail.com`;
-        const tempPassword = Math.floor(Math.random() * 1_000_000);
-        // Create a new user with temp email and password random password
-        // This is a workaround to create a new user with phone number
-
-        await createUserWithEmailAndPassword(firebaseAuth, tempEmail, String(tempPassword));
-
-        if (auth.type !== LoadingStateTypes.LOADED) return;
-
-        dispatch(
-            sendVerificationCode({
-                phoneNumber,
-                auth,
-                recaptcha,
-                recaptchaResolved,
-                callback: (result) => {
-                    if (result.type === 'error') {
-                        setRecaptchaResolved(false);
-                        return;
-                    }
-                    setVerificationId(result.verificationId);
-                    setShow(true);
-                },
+        signInWithPhoneNumber(firebaseAuth, phoneNumber, recaptcha as ApplicationVerifier)
+            .then((result) => {
+                console.log('result', result);
+                setVerificationId(result.verificationId);
+                setShow(true);
             })
-        );
+            .catch((error) => {
+                console.log('error', error);
+            });
     };
 
     // Validating the filled OTP by user
     const ValidateOtp = async () => {
-        if (auth.type !== LoadingStateTypes.LOADED) return;
-        dispatch(
-            verifyPhoneNumber({
-                auth,
-                OTPCode,
-                verificationId,
-                callback: (result) => {
-                    if (result.type === 'error') {
-                        return;
-                    }
-                    // needed to reload auth user
-                    router.refresh();
-                },
-            })
-        );
+        if (recaptchaResolved === false) {
+            dispatch(
+                showToast({
+                    message: 'Please verify the recaptcha',
+                    type: 'info',
+                })
+            );
+            return;
+        }
+
+        const credential = PhoneAuthProvider.credential(verificationId, OTPCode);
+
+        try {
+            const result = await signInWithCredential(firebaseAuth, credential);
+            console.log('result', result);
+        } catch (error: any) {
+            console.log('error', error.message);
+        }
     };
 
     // generating the recaptcha on page render
