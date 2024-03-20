@@ -76,7 +76,7 @@ const PhoneSignUp = () => {
             dispatch(
                 showToast({
                     message: 'Logged in successfully',
-                    type: 'error',
+                    type: 'success',
                 })
             );
 
@@ -120,9 +120,9 @@ const PhoneSignUp = () => {
 
     return (
         <div className="flex items-center justify-center">
-            <div className="w-full max-w-md space-y-8">
+            <div className="w-full space-y-8">
                 <div className="max-w-xl w-full rounded overflow-hidden py-2 px-4">
-                    <div className="px-4 flex p-4 pb-10 gap-4 flex-col">
+                    <div className="px-4 flex p-4 gap-4 flex-col">
                         <Input
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}

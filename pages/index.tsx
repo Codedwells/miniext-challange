@@ -8,6 +8,7 @@ import PhoneVerification from '@/components/ui/PhoneVerification';
 import { useHomePage } from '@/components/redux/homePage/homePageSelectors';
 import { fetchHomePageData } from '@/components/redux/homePage/fetchHomePageData';
 import { useAppDispatch } from '@/components/redux/store';
+import AddAccountEmail from '@/components/ui/AddAccountEmail';
 
 export function Home() {
     const dispatch = useAppDispatch();
@@ -32,6 +33,10 @@ export function Home() {
             auth.user != null &&
             auth.user.phoneNumber == null ? (
                 <PhoneVerification />
+            ) : auth.type === LoadingStateTypes.LOADED &&
+              auth.user != null &&
+              auth.user.email == null ? (
+                <AddAccountEmail />
             ) : (
                 <main className={styles.main}>
                     <h1 className={styles.title}>

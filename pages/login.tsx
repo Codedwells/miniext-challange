@@ -13,6 +13,8 @@ import LoadingButton from '@/components/ui/LoadingButton';
 import SignUpModal from '@/components/ui/SignUpModal';
 import { loginWithEmail, useIsLoginWithEmailLoading } from '@/components/redux/auth/loginWithEmail';
 import { LoadingStateTypes } from '@/components/redux/types';
+import LoginWithPhoneOrEmailButton from '@/components/ui/LoginWithPhoneButton';
+import PhoneSignUp from '@/components/ui/PhoneNumberSignUP';
 
 export const googleLoginProvider = new GoogleAuthProvider();
 
@@ -24,6 +26,7 @@ const LoginPage: NextPage = () => {
     const [password, setPassword] = useState('');
     const [disableSubmit, setDisableSubmit] = useState(true);
     const isLoading = useIsLoginWithEmailLoading();
+    const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
 
     const [showRegistration, setshowRegistration] = useState(false);
     const router = useRouter();
@@ -71,27 +74,33 @@ const LoginPage: NextPage = () => {
 
                 <div className="max-w-xl w-full rounded overflow-hidden shadow-lg py-2 px-4">
                     <div className="flex gap-4 mb-5 flex-col">
-                        <Input
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Email"
-                            name="email"
-                            type="text"
-                        />
-                        <Input
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
-                            name="password"
-                            type="password"
-                        />
-                        <LoadingButton
-                            onClick={signInWithEmail}
-                            disabled={disableSubmit}
-                            loading={isLoading}
-                        >
-                            Sign In
-                        </LoadingButton>
+                        {loginType === 'email' ? (
+                            <>
+                                <Input
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Email"
+                                    name="email"
+                                    type="text"
+                                />
+                                <Input
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Password"
+                                    name="password"
+                                    type="password"
+                                />
+                                <LoadingButton
+                                    onClick={signInWithEmail}
+                                    disabled={disableSubmit}
+                                    loading={isLoading}
+                                >
+                                    Sign In
+                                </LoadingButton>
+                            </>
+                        ) : (
+                            <PhoneSignUp />
+                        )}
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-300" />
@@ -100,9 +109,14 @@ const LoginPage: NextPage = () => {
                                 <span className="bg-white px-2 text-gray-500">Or login with</span>
                             </div>
                         </div>
-                        <div className="mt-2 grid grid-cols-1 gap-3">
+                        <div className="mt-2 grid grid-cols-2 gap-3">
                             <LoginWithGoogleButton />
+                            <LoginWithPhoneOrEmailButton
+                                setLoginType={setLoginType}
+                                type={loginType}
+                            />
                         </div>
+
                         <div className="mt-6">
                             <div className="flex justify-center">
                                 <div className="relative flex justify-center text-sm">
@@ -112,7 +126,10 @@ const LoginPage: NextPage = () => {
                                 </div>
                                 <div className="relative flex justify-center text-sm">
                                     <div
-                                        onClick={() => setshowRegistration(true)}
+                                        onClick={() => {
+                                            setshowRegistration(true);
+                                            setLoginType('email');
+                                        }}
                                         className="ml-2 cursor-pointer font-medium text-violet-600 hover:text-violet-400"
                                     >
                                         Sign Up

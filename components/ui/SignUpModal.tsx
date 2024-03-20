@@ -58,7 +58,7 @@ const SignUpModal = (props: SignUpModalProps) => {
     return (
         <Modal show={props.open} setShow={props.setOpen}>
             <div className="max-w-md w-full bg-white py-6 rounded-lg">
-                <h2 className="text-lg font-semibold text-center mb-10">Sign Up</h2>
+                <h2 className="text-3xl font-semibold text-center mt-6">Create an account</h2>
                 <div className="px-4 flex p-4 pb-10 gap-4 flex-col">
                     {loginType === 'email' ? (
                         <>
